@@ -2,20 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void swap(
-		unsigned char *array,
-	   	unsigned long data_size,
-		unsigned char *tmp,
-	   	unsigned long a,
-	   	unsigned long b);
-
-static void quick_sort(
-		unsigned char *array,
-	   	unsigned long length,
-	   	unsigned long data_size,
-		unsigned char *tmp,
-		DSCompare compare);
-
 
 AList *alist_new(unsigned long max_length, unsigned long data_size) {
 	AList *list;
@@ -126,44 +112,7 @@ void alist_clear(AList *list) {
 
 int alist_sort(AList *list, DSCompare compare) {
 	unsigned char *tmp = list->array + list->max_length * list->data_size;
-	quick_sort(list->array, list->length, list->data_size, tmp, compare);
+	ds_quick_sort(list->array, list->length, list->data_size, tmp, compare);
 	return DS_OK;
-}
-
-static void swap(
-		unsigned char *array,
-	   	unsigned long data_size,
-		unsigned char *tmp,
-	   	unsigned long a,
-	   	unsigned long b)
-{
-	memcpy(tmp, array + a * data_size, data_size);
-	memcpy(array + a * data_size, array + b * data_size, data_size);
-	memcpy(array + b * data_size, tmp, data_size);
-}
-
-static void quick_sort(
-		unsigned char *array,
-	   	unsigned long length,
-	   	unsigned long data_size,
-		unsigned char *tmp,
-	   	DSCompare compare)
-{
-	unsigned long p, i, j;
-	if (length <= 1) {
-		return;
-	}
-	p = length / 2;
-	j = 1;
-	swap(array, data_size, tmp, 0, p);
-	for (i = 1; i < length; i++) {
-		if (compare(array + i * data_size, array) <= 0) {
-			swap(array, data_size, tmp, i, j);
-			j++;
-		}
-	}
-	swap(array, data_size, tmp, 0, j-1);
-	quick_sort(array,					  j-1,			data_size, tmp, compare);
-	quick_sort(array + (j-1) * data_size, length - j+1, data_size, tmp, compare);
 }
 

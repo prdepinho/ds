@@ -1,6 +1,8 @@
 #ifndef __ALIST_H__
 #define __ALIST_H__
 
+#include "commons.h"
+
 enum DataStructErrors {
 	DS_OK = 0,
 	DS_OVERFLOW,
@@ -15,9 +17,6 @@ typedef struct AList {
 	unsigned long data_size;
 	unsigned long length;
 } AList;
-
-// return <0 if a<b; 0 if a==b; >0 if a>b
-typedef int (*DSCompare) (const void *a, const void *b);
 
 
 AList *alist_new(unsigned long max_length, unsigned long data_size);

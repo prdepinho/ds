@@ -1,4 +1,5 @@
 
+#include "commons.h"
 #include "alist.h"
 #include <assert.h>
 #include <stdlib.h>
@@ -331,6 +332,33 @@ int main() {
 			assert(n == 2);
 			alist_get(list, 4, &n);
 			assert(n == 3);
+		}
+	}
+
+	{
+		AList *list = alist_new(10, sizeof(int));
+
+		{
+			int n = 7;
+			int rval = alist_push(list, &n);
+			assert(rval == DS_OK);
+		}
+		{
+			int n;
+			int rval = alist_get(list, 0, &n);
+			assert(rval == DS_OK);
+			assert(n == 7);
+		}
+		{
+			int n = 8;
+			int rval = alist_add(list, 1, &n);
+			assert(rval == DS_OK);
+		}
+		{
+			int n;
+			int rval = alist_get(list, 1, &n);
+			assert(rval == DS_OK);
+			assert(n == 8);
 		}
 	}
 
