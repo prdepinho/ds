@@ -269,6 +269,65 @@
 		list->tail = 0;													\
 	}
 
+#define DEFINE_CIRCULAR_ARRAY_LIST_PTR(Type, size)							\
+	typedef struct {													\
+		Type *elms[size];												\
+		int head;														\
+		int tail;														\
+	} CList_##Type##_ptr;														\
+																		\
+	int cl_##Type##_ptr_index(int index) {									\
+		return (index % size + size) % size;							\
+	}																	\
+																		\
+	int cl_##Type##_ptr_length(CList_##Type##_ptr *list) {						\
+		return list->tail - list->head;									\
+	}																	\
+																		\
+	void cl_##Type##_ptr_push_tail(CList_##Type##_ptr *list, Type *elm) {			\
+		list->elms[cl_##Type##_ptr_index(list->tail++)] = elm;				\
+	}																	\
+																		\
+	Type *cl_##Type##_ptr_pop_tail(CList_##Type##_ptr *list) {						\
+		return list->elms[cl_##Type##_ptr_index(--list->tail)];				\
+	}																	\
+																		\
+	void cl_##Type##_ptr_push_head(CList_##Type##_ptr *list, Type *elm) {			\
+		list->elms[cl_##Type##_ptr_index(--list->head)] = elm;				\
+	}																	\
+																		\
+	Type *cl_##Type##_ptr_pop_head(CList_##Type##_ptr *list) {						\
+		return list->elms[cl_##Type##_ptr_index(list->head++)];				\
+	}																	\
+																		\
+	void cl_##Type##_ptr_insert(CList_##Type##_ptr *list, int index, Type *elm) {	\
+		for (int i = cl_##Type##_ptr_length(list); i > index; i--) {		\
+			list->elms[cl_##Type##_ptr_index(list->head + i)] = list->elms[cl_##Type##_ptr_index(list->head + i - 1)];	\
+		}																\
+		list->elms[cl_##Type##_ptr_index(list->head + index)] = elm;					\
+		list->tail += 1;												\
+	}																	\
+																		\
+	void cl_##Type##_ptr_remove(CList_##Type##_ptr *list, int index) {			\
+		for (int i = index; i < cl_##Type##_ptr_length(list); i++) {		\
+			list->elms[cl_##Type##_ptr_index(list->head + i)] = list->elms[cl_##Type##_ptr_index(list->head + i + 1)];	\
+		}																\
+		list->tail -= 1;												\
+	}																	\
+																		\
+	void cl_##Type##_ptr_set(CList_##Type##_ptr *list, int index, Type *elm) {		\
+		list->elms[cl_##Type##_ptr_index(list->head + index)] = elm;					\
+	}																	\
+																		\
+	Type *cl_##Type##_ptr_get(CList_##Type##_ptr *list, int index) {				\
+		return list->elms[cl_##Type##_ptr_index(list->head + index)];					\
+	}																	\
+																		\
+	void cl_##Type##_ptr_clear(CList_##Type##_ptr *list) {						\
+		list->head = 0;													\
+		list->tail = 0;													\
+	}
+
 
 /*
  * Linked List
@@ -366,6 +425,86 @@
 	void ll_##Type##_clear(LList_##Type *head) {								\
 		LList_##Type *next;														\
 		for (LList_##Type *node = head; node != NULL; node = next) {			\
+			next = node->next;													\
+			free(node);															\
+		}																		\
+	}																			\
+
+#define DEFINE_LINKED_LIST_PTR(Type)												\
+	struct LList_##Type##_ptr;														\
+	typedef struct LList_##Type##_ptr {												\
+		Type *elm;																\
+		struct LList_##Type##_ptr *next;												\
+		struct LList_##Type##_ptr *prev;												\
+	} LList_##Type##_ptr;																\
+																				\
+	Type ll_##Type##_ptr_length(LList_##Type##_ptr *list) {								\
+		int count = 0;															\
+		for (; list != NULL; list = list->next) {								\
+			count += 1;															\
+		}																		\
+		return count;															\
+	}																			\
+																				\
+	LList_##Type##_ptr *ll_##Type##_ptr_push(LList_##Type##_ptr *node, Type *elm) {				\
+		LList_##Type##_ptr *l = malloc(sizeof(LList_##Type##_ptr));							\
+		l->elm = elm;															\
+		l->prev = NULL;															\
+		l->next = NULL;															\
+		if (node) {																\
+			if (node->next) {													\
+				node->next->prev = l;											\
+			}																	\
+			l->next = node->next;												\
+			node->next = l;														\
+		}																		\
+		l->prev = node;															\
+		return l;																\
+	}																			\
+																				\
+	LList_##Type##_ptr *ll_##Type##_ptr_pop(LList_##Type##_ptr *node) {							\
+		LList_##Type##_ptr *prev = node->prev;										\
+		if (node->prev) {														\
+			node->prev->next = node->next;										\
+		}																		\
+		if (node->next) {														\
+			node->next->prev = node->prev;										\
+		}																		\
+		free(node);																\
+		return prev;															\
+	}																			\
+																				\
+	LList_##Type##_ptr *ll_##Type##_ptr_insert(LList_##Type##_ptr *node, Type *elm) {			\
+		LList_##Type##_ptr *l = malloc(sizeof(LList_##Type##_ptr));							\
+		l->elm = elm;															\
+		l->next = NULL;															\
+		l->prev = NULL;															\
+		if (node) {																\
+			if (node->prev) {													\
+				node->prev->next = l;											\
+			}																	\
+			l->prev = node->prev;												\
+			node->prev = l;														\
+		}																		\
+		l->next = node;															\
+		return l;																\
+	}																			\
+																				\
+	LList_##Type##_ptr *ll_##Type##_ptr_remove(LList_##Type##_ptr *node) {						\
+		LList_##Type##_ptr *next = node->next;										\
+		if (node->prev) {														\
+			node->prev->next = node->next;										\
+		}																		\
+		if (node->next) {														\
+			node->next->prev = node->prev;										\
+		}																		\
+		free(node);																\
+		return next;															\
+	}																			\
+																				\
+	void ll_##Type##_ptr_clear(LList_##Type##_ptr *head) {								\
+		LList_##Type##_ptr *next;														\
+		for (LList_##Type##_ptr *node = head; node != NULL; node = next) {			\
 			next = node->next;													\
 			free(node);															\
 		}																		\
