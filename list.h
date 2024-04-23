@@ -328,26 +328,157 @@
 		list->tail = 0;													\
 	}
 
+/*
+ * Stack
+ */
+#define DEFINE_STACK(Type, size)													\
+	typedef struct Stack_##Type {												\
+		Type elms[size];													\
+		int length;															\
+	} Stack_##Type;															\
+																			\
+	int st_##Type##_length(Stack_##Type *stack) {						\
+		return stack->length;									\
+	}																	\
+																		\
+	void st_##Type##_push(Stack_##Type *stack, Type elm) {					\
+		stack->elms[stack->length++] = elm;								\
+	}																		\
+																			\
+	Type st_##Type##_pop(Stack_##Type *stack) {								\
+		return stack->elms[--stack->length];								\
+	}																		\
+																			\
+	Type st_##Type##_peek(Stack_##Type *stack) {							\
+		return stack->elms[stack->length - 1];								\
+	}																		\
+																			\
+	int st_##Type##_clear(Stack_##Type *stack) {							\
+		stack->length = 0;													\
+	}																		\
+
+#define DEFINE_STACK_PTR(Type, size)										\
+	typedef struct Stack_##Type##_ptr {										\
+		Type *elms[size];													\
+		int length;															\
+	} Stack_##Type##_ptr;													\
+																			\
+	int st_##Type##_ptr_length(Stack_##Type##_ptr *stack) {						\
+		return stack->length;												\
+	}																		\
+																			\
+	void st_##Type##_ptr_push(Stack_##Type##_ptr *stack, Type *elm) {				\
+		stack->elms[stack->length++] = elm;									\
+	}																		\
+																			\
+	Type *st_##Type##_ptr_pop(Stack_##Type##_ptr *stack) {						\
+		return stack->elms[--stack->length];								\
+	}																		\
+																			\
+	Type *st_##Type##_ptr_peek(Stack_##Type##_ptr *stack) {						\
+		return stack->elms[stack->length - 1];								\
+	}																		\
+																			\
+	int st_##Type##_ptr_clear(Stack_##Type##_ptr *stack) {						\
+		stack->length = 0;													\
+	}																		\
+
+
+/*
+ * Queue
+ */
+#define DEFINE_QUEUE(Type, size)										\
+	typedef struct Queue_##Type {											\
+		Type elms[size];													\
+		int head;															\
+		int tail;															\
+	} Queue_##Type;															\
+																			\
+	int qu_##Type##_length(Queue_##Type *queue) {							\
+		return queue->tail - queue->head;									\
+	}																		\
+																			\
+	void qu_##Type##_push(Queue_##Type *queue, Type elm) {					\
+		queue->elms[queue->tail++ % size] = elm;							\
+	}																		\
+																			\
+	Type qu_##Type##_pop(Queue_##Type *queue) {								\
+		return queue->elms[queue->head++ % size];							\
+	}																		\
+																			\
+	Type qu_##Type##_peek(Queue_##Type *queue) {							\
+		return queue->elms[queue->head % size];								\
+	}																		\
+																			\
+	int qu_##Type##_clear(Queue_##Type *queue) {							\
+		queue->head = 0;													\
+		queue->tail = 0;													\
+	}																		\
+
+#define DEFINE_QUEUE_PTR(Type, size)										\
+	typedef struct Queue_##Type##_ptr {										\
+		Type *elms[size];													\
+		int head;															\
+		int tail;															\
+	} Queue_##Type##_ptr;													\
+																			\
+	int qu_##Type##_ptr_length(Queue_##Type##_ptr *queue) {						\
+		return queue->tail - queue->head;									\
+	}																		\
+																			\
+	void qu_##Type##_ptr_push(Queue_##Type##_ptr *queue, Type *elm) {				\
+		queue->elms[queue->tail++ % size] = elm;							\
+	}																		\
+																			\
+	Type *qu_##Type##_ptr_pop(Queue_##Type##_ptr *queue) {						\
+		return queue->elms[queue->head++ % size];							\
+	}																		\
+																			\
+	Type *qu_##Type##_ptr_peek(Queue_##Type##_ptr *queue) {						\
+		return queue->elms[queue->head % size];								\
+	}																		\
+																			\
+	int qu_##Type##_ptr_clear(Queue_##Type##_ptr *queue) {						\
+		queue->head = 0;													\
+		queue->tail = 0;													\
+	}																		\
+
 
 /*
  * Linked List
- * Generic, simple, doubly linked list.
+ * Generic, simple, fast, doubly linked list.
  * Memory is allocated for each new node and it is deleted when the node is
  * removed.
+ *
  * A linked list is a connected list of nodes, so the list is variable in size.
  * Contrary to other structures, this linked list represents just one node,
  * and you can access the other nodes in the list from it and functions take
  * a node as parameter. If it is necessary, you need to make sure you have
  * a reference of the list's head and tail.
+ *
  * The methods are different from the previous structures. 
  * The method push creates a node after the referenced node and returns it.
  * The method pop deletes the referenced node and returns the previous node.
  * The method insert creates a node befores the referenced node and returns it.
  * The method remove deletes the referenced node and returns the next node.
+ *
  * If you are calling a function for an empty the list, then pass NULL to 
  * the node reference. The function will return the list's first node.
  * Even if a reference to a node has been deleted, do not forget to set it 
  * to NULL, otherwise, the program may crash.
+ *
+ * Linked lists have no random access, so you have to iterate through
+ * the nodes in order to find the element you want.
+ *
+ * On the other hand, inserting and removing elements in any point of the 
+ * list is constant complexity O(1). Therefore you may use this as efficient
+ * stacks and queues unlimited in size. The downsize is that the use of 
+ * dynamic memory is relatively expensive.
+ *
+ * The length function therefore is O(n) in complexity. Make sure to give it
+ * the actual head of the list if you want the whole size, otherwise the 
+ * function will calculate the length of the list from the node you give 
+ * it forwards.
  *
  */
 #define DEFINE_LINKED_LIST(Type)												\
@@ -509,6 +640,13 @@
 			free(node);															\
 		}																		\
 	}																			\
+
+/*
+ * Map
+ */
+#define DEFINE_MAP(Key, Value, KeyCompare)													\
+	typedef Map_##Key##_##Value {												\
+	} Map_##Key##_##Value;														\
 
 
 

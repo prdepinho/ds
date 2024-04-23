@@ -4,17 +4,12 @@
 #include <string.h>
 #include <assert.h>
 
-DEFINE_ARRAY_LIST(int, 12)
-DEFINE_ARRAY_LIST_PTR(int, 12)
-DEFINE_CIRCULAR_ARRAY_LIST(int, 12)
-DEFINE_CIRCULAR_ARRAY_LIST_PTR(int, 12)
-DEFINE_LINKED_LIST(int)
-DEFINE_LINKED_LIST_PTR(int)
 
 int main(void) {
 
 	// array list
 	{
+		DEFINE_ARRAY_LIST(int, 12)
 		List_int list = { 0 };
 
 		for (int i = 0; i < 10; i++) {
@@ -52,25 +47,96 @@ int main(void) {
 
 	}
 	{
+		typedef struct Ref {
+			int *ptr;
+		} Ref;
+		int v[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		int w[] = { 0, 11, 22, 33, 44, 55, 66, 77, 88, 99 };
 
-		int values[32] = { 1, 2, 3, 4, 5, 6 };
+		DEFINE_ARRAY_LIST(Ref, 12);
+
+		List_Ref list = { 0 };
+
+		for (int i = 0; i < 10; i++) {
+			al_Ref_push(&list, (Ref){&v[i]});
+		}
+		assert(list.length == 10);
+		for (int i = 0; i < 10; i++) {
+			assert(*al_Ref_get(&list, i).ptr == i);
+		}
+		for (int i = 9; i >= 0; i--) {
+			assert(*al_Ref_pop(&list).ptr == i);
+		}
+		assert(list.length == 0);
+
+		for (int i = 0; i < 10; i++) {
+			al_Ref_push(&list, (Ref){&v[i]});
+		}
+		assert(list.length == 10);
+		al_Ref_insert(&list, 4, (Ref){&w[4]});
+		assert(list.length == 11);
+		assert(*al_Ref_get(&list, 4).ptr == 44);
+		assert(*al_Ref_get(&list, list.length - 1).ptr == 9);
+		al_Ref_set(&list, 0, (Ref){&w[1]});
+		assert(*al_Ref_get(&list, 0).ptr == 11);
+
+		al_Ref_remove(&list, 4);
+		assert(*al_Ref_get(&list, 4).ptr == 4);
+
+		al_Ref_remove(&list, 0);
+		assert(*al_Ref_get(&list, 0).ptr == 1);
+
+		al_Ref_remove(&list, list.length - 1);
+		assert(*al_Ref_get(&list, list.length - 1).ptr == 8);
+		assert(list.length == 8);
+
+	}
+	{
+		DEFINE_ARRAY_LIST_PTR(int, 12)
+		int v[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		int w[] = { 0, 11, 22, 33, 44, 55, 66, 77, 88, 99 };
 
 		List_int_ptr list = { 0 };
 
-		for (int i = 0; i < 6; i++) {
-			al_int_ptr_push(&list, &(values[i]));
+		for (int i = 0; i < 10; i++) {
+			al_int_ptr_push(&list, &v[i]);
 		}
-
-		for (int i = 5; i >= 0; i--) {
-			assert(*(al_int_ptr_pop(&list)) == values[i]);
+		assert(list.length == 10);
+		for (int i = 0; i < 10; i++) {
+			assert(*al_int_ptr_get(&list, i) == i);
 		}
+		for (int i = 9; i >= 0; i--) {
+			assert(*al_int_ptr_pop(&list) == i);
+		}
+		assert(list.length == 0);
 
+		for (int i = 0; i < 10; i++) {
+			al_int_ptr_push(&list, &v[i]);
+		}
+		assert(list.length == 10);
+		al_int_ptr_insert(&list, 4, &w[4]);
+		assert(list.length == 11);
+		assert(*al_int_ptr_get(&list, 4) == 44);
+		assert(*al_int_ptr_get(&list, list.length - 1) == 9);
+		al_int_ptr_set(&list, 0, &w[1]);
+		assert(*al_int_ptr_get(&list, 0) == 11);
+
+		al_int_ptr_remove(&list, 4);
+		assert(*al_int_ptr_get(&list, 4) == 4);
+
+		al_int_ptr_remove(&list, 0);
+		assert(*al_int_ptr_get(&list, 0) == 1);
+
+		al_int_ptr_remove(&list, list.length - 1);
+		assert(*al_int_ptr_get(&list, list.length - 1) == 8);
+		assert(list.length == 8);
 
 	}
 
 
 	// circular array list
 	{
+		DEFINE_CIRCULAR_ARRAY_LIST(int, 12)
 		CList_int list = { 0 };
 
 		for (int i = 0; i < 10; i++) {
@@ -137,6 +203,7 @@ int main(void) {
 
 	}
 	{
+		DEFINE_CIRCULAR_ARRAY_LIST_PTR(int, 12)
 		CList_int_ptr list = { 0 };
 		int v[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 		int w[] = { 0, 11, 22, 33, 44, 55, 66, 77, 88, 99 };
@@ -205,8 +272,99 @@ int main(void) {
 
 	}
 
+	// stack
+	{
+		DEFINE_STACK(int, 12)
+		Stack_int stack = { 0 };
+
+		for (int i = 0; i < 10; i++) {
+			st_int_push(&stack, i);
+		}
+
+		assert(st_int_peek(&stack) == 9);
+		assert(st_int_length(&stack) == 10);
+
+		for (int i = 9; i >= 0; i--) {
+			assert(st_int_pop(&stack) == i);
+		}
+	}
+	{
+		DEFINE_STACK_PTR(int, 12)
+		int v[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		Stack_int_ptr stack = { 0 };
+
+		for (int i = 0; i < 10; i++) {
+			st_int_ptr_push(&stack, &v[i]);
+		}
+
+		assert(*st_int_ptr_peek(&stack) == 9);
+		assert(st_int_ptr_length(&stack) == 10);
+
+		for (int i = 9; i >= 0; i--) {
+			assert(*st_int_ptr_pop(&stack) == i);
+		}
+	}
+
+	// queue
+	{
+		DEFINE_QUEUE(int, 12)
+		Queue_int queue = { 0 };
+
+		for (int i = 0; i < 10; i++) {
+			qu_int_push(&queue, i);
+		}
+
+		assert(qu_int_peek(&queue) == 0);
+		assert(qu_int_length(&queue) == 10);
+
+		for (int i = 0; i < 10; i++) {
+			assert(qu_int_pop(&queue) == i);
+		}
+
+		assert(queue.head == 10);
+		for (int i = 0; i < 5; i++) {
+			qu_int_push(&queue, i);
+		}
+		assert(queue.tail == 15);
+
+		while (qu_int_length(&queue) > 0) {
+			qu_int_pop(&queue);
+		}
+		assert(qu_int_length(&queue) == 0);
+		assert(queue.head == queue.tail);
+	}
+	{
+		DEFINE_QUEUE_PTR(int, 12)
+		int v[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		Queue_int_ptr queue = { 0 };
+
+		for (int i = 0; i < 10; i++) {
+			qu_int_ptr_push(&queue, &v[i]);
+		}
+
+		assert(*qu_int_ptr_peek(&queue) == 0);
+		assert(qu_int_ptr_length(&queue) == 10);
+
+		for (int i = 0; i < 10; i++) {
+			assert(*qu_int_ptr_pop(&queue) == i);
+		}
+
+		assert(queue.head == 10);
+		for (int i = 0; i < 5; i++) {
+			qu_int_ptr_push(&queue, &v[i]);
+		}
+		assert(queue.tail == 15);
+
+		while (qu_int_ptr_length(&queue) > 0) {
+			qu_int_ptr_pop(&queue);
+		}
+		assert(qu_int_ptr_length(&queue) == 0);
+		assert(queue.head == queue.tail);
+	}
+
 	// linked list
 	{
+		DEFINE_LINKED_LIST(int)
 		LList_int *head = ll_int_push(NULL, 0);
 		LList_int *tail = head;
 		for (int i = 1; i < 10; i++) {
@@ -262,6 +420,7 @@ int main(void) {
 
 	}
 	{
+		DEFINE_LINKED_LIST_PTR(int)
 		int v[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 		int w[] = { 0, 11, 22, 33, 44, 55, 66, 77, 88, 99 };
 		LList_int_ptr *head = ll_int_ptr_push(NULL, &v[0]);
