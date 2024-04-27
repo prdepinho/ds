@@ -641,13 +641,5 @@
 		}																		\
 	}																			\
 
-/*
- * Map
- */
-#define DEFINE_MAP(Key, Value, KeyCompare)													\
-	typedef Map_##Key##_##Value {												\
-	} Map_##Key##_##Value;														\
-
-
 
 #endif  // __LIST__H__

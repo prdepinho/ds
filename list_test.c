@@ -47,6 +47,14 @@ int main(void) {
 
 	}
 	{
+		DEFINE_ARRAY_LIST(int, 32)
+		List_int list = { 0 };
+		for (int i = 0; i < 10; i++) {
+			al_int_push(&list, i);
+		}
+		assert(list.length == 10);
+	}
+	{
 		typedef struct Ref {
 			int *ptr;
 		} Ref;
