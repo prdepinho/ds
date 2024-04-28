@@ -67,6 +67,10 @@ int main(void) {
 		node = bt_find(root, 17);
 		assert(node != NULL);
 		assert(node->elm == 17);
+
+		node = bt_remove(root, 17);
+		assert(node == NULL);
+		assert(bt_length(root) == 3);
 	}
 
 	return 0;

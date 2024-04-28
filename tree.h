@@ -19,6 +19,12 @@
 	int bt_##Type##_length(BTree_##Type *root) {								\
 	}																			\
 
+/*
+ * Binary Search Tree
+ * Unbalanced. Inserting an element allocs memory for the node,
+ * and removing frees it. Functions return a node.
+ *
+ */
 struct BTree;
 
 typedef struct BTree {
